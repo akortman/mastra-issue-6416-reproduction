@@ -1,4 +1,4 @@
-import { createStep, createWorkflow } from "@mastra/core/workflows";
+import { createStep, createWorkflow } from "@mastra/core/workflows"; // Error caused by this import!
 import { z } from "zod";
 
 export const innerStep = createStep({
@@ -11,7 +11,7 @@ export const innerStep = createStep({
 });
 
 const innerWorkflow = createWorkflow({
-  id: "debug-test-inner-workflow",
+  id: "inner-workflow",
   inputSchema: z.any(),
   outputSchema: z.any(),
 }).then(innerStep);

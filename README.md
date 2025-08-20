@@ -14,38 +14,23 @@ This error can only be reproduced by us by building and starting the server, or 
 
 # Description of bug
 
-We're seeing a failure in our built `mastra` server only that reads `Cannot read properties of undefined (reading 'result')`. The workflows work during development through the dev server.
+We're seeing a failure in our built `mastra` server only that reads `Cannot read properties of undefined (reading 'result')`.
 
-This only happens with a workflow that uses `then` (or `foreach`) to call another workflow, and that other workflow is in another file.
+The workflows work without this error during development through the dev server.
 
-File #1:
-```javascript
-const error = createWorkflow({ ... })
-  .then(innerWorkflow);
-```
+We've narrowed this down to an import error: if the outer flow imports from `@mastra/core` and the inner flow imports
+from `@mastra/core/workflows`, this error occurs in the built source only.
 
-File #2 (must be in another file):
-```javascript
-const innerWorkflow = createWorkflow({ ... })
-  .then(
-    createStep({
-      ...
-    })
-  )
-```
+This typically happens with a workflow that uses `then` (or `foreach`) to call another workflow, and that other workflow is in another file.
+See `src/mastra/workflows/error-inner.ts` (inner/nested workflow) and `src/mastra/workflows/error-reproduce.ts` (outer workflow) for this case.
 
-The `innerWorkflow` must be located in a separate file. If it is moved into the same file as `errorWorkflow` the error no longer occurs.
+We have also reproduced this in a single file in `src/mastra/workflows/error-reproduce-minimal.ts`.
 
 # Other findings
 
 We've also included some comparison workflows that don't reproduce the bug, included in `src/mastra/workflows/ok-flows`.
 
-These can be ran with `npm run workflow {workflowId}`. (note: `workflowId` must be the camelcase name, not what is in `createWorkflow`'s `id` property)
-
-From these, it seems the following are required for this bug to occur:
-1. You must have a nested workflow structure (i.e. one workflow calling another workflow.)
-2. The inner workflow that is called by the outer workflow must be defined a separate file and imported.
-3. Mastra must be ran in a built state (i.e. not as a dev server, but with build+start steps).
+These can be ran with `npm run workflow {workflowId}`. (note: `workflowId` must be the camelcase name, not what is in `createWorkflow`'s `id` property).
 
 # Example error output
 From workflow watch:

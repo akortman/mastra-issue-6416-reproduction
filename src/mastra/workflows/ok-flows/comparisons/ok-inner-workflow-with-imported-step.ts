@@ -5,7 +5,7 @@
 
 import { createWorkflow } from "@mastra/core";
 import z from "zod";
-import { innerStep } from "../inner";
+import { innerStep } from "../../error-inner";
 
 
 const innerWorkflow = createWorkflow({
